@@ -1,0 +1,39 @@
+{% load crispy_forms_tags %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Register</title>
+</head>
+
+<body>
+    <h2>Register</h2>
+
+    <h2>Register</h2>
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{% if message.tags %} class="{{ message.tags }}"
+
+            {% endif %}>
+
+            {{ message }}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <form method="post" action="{% url 'Register' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ userform.as_p }}
+        <!-- {{ userform | crispy }}
+
+        {{ userprofileform | crispy }} -->
+        {{ userprofileform.as_p }}
+
+        <button type="submit">Register</button>
+    </form>
+</body>
+
+</html>

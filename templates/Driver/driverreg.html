@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Registration Page</title>
+</head>
+
+<body>
+
+    <form method="post" action="{% url 'driverReg' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {{d_form.as_p}}
+        {{theprofile_form.as_p}}
+        {{userregform.as_p}}
+
+        <button type="submit">Submit</button>
+
+    </form>
+
+</body>
+
+</html>

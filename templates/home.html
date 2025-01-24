@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evans book and ride </title>
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+</head>
+
+<body>
+
+
+    Hello World!
+
+    You just created your first web appplication with django
+    <p>
+        Register your account <a href="{% url 'Register' %}">here</a>
+
+    </p>
+
+
+    <p>
+        Register your vendor account here <a href="{% url 'VendorReg' %}">here</a>
+
+    </p>
+
+    <p>
+        Register as a driver <a href="{% url 'driverReg' %}">here</a>
+
+    </p>
+    <p>
+        <a href="{% url 'view_all_vendors' %}"> Admin Area</a>
+    </p>
+
+
+
+
+
+
+
+    <script src="static/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

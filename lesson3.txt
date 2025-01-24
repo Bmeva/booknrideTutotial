@@ -1,0 +1,253 @@
+make correction on the vendor form
+
+
+from django import forms
+from .models import vendorregistration
+from authentication.validators import allow_only_images_validator
+
+
+
+class vendorform(forms.ModelForm): 
+    VendorLicense = forms.FileField(label='Vendor License',  help_text='Please your vendor license, image only', widget=forms.FileInput(), validators= [allow_only_images_validator]) #on the vprofile.htm we called the vendor license to display so this code would give the button a style css
+        
+    # vendorType = forms.Select(help_texts = 'Please select your vendor type')
+    
+    
+           
+    class Meta:
+        model = vendorregistration
+        fields = ['vendorname', 'vendorlicense', 'vendorType']  
+        
+        widgets = {
+            'VendorName': forms.TextInput(attrs={'placeholder': 'Enter your vendor name'}),
+          
+            'vendorType': forms.Select(), 
+            
+                    
+        }
+        
+        help_texts = {   #make this adustment. on the tutorial it was outside the meta class
+            'vendorType': 'Please select your vendor type.'
+        }
+
+
+
+
+Create validators.py in the authentication app and then use it on the form
+
+
+go to the user registration form and use the validators as well
+
+ profile_picture = ImageField(widget = FileInput(), validators= [allow_only_images_validator]) 
+
+from django.core.exceptions import ValidationError
+import os
+
+def allow_only_images_validator(value):
+    ext = os.path.splitext(value.name)[1]
+    print(ext)
+    valid_extensions = ['.png', '.jpg', '.jpeg']
+    if not ext.lower() in valid_extensions:
+        raise ValidationError('unsupported file extension. Allowed extensions:' + str(valid_extensions))
+    
+from django.core.exceptions import ValidationError:
+
+This line imports the ValidationError class from Django's core exceptions module. ValidationError is 
+used to raise an error when the validation condition is not met.
+
+import os:
+
+This line imports the os module from Python's standard library.
+
+def allow_only_images_validator(value):
+This line defines a function named allow_only_images_validator that takes one parameter, 
+value. This function will be used to validate that 
+the file being uploaded is an image file with specific allowed extensions.
+
+    valid_extensions = ['.png', '.jpg', '.jpeg'] Creating a list and storing the valid
+    extension in the list
+
+ext = os.path.splitext(value.name)[1]:
+
+This line uses the os.path.splitext method to split the file name (value.name) 
+into its name and extension
+
+ print(ext) this is not neccesar but would print the file extension on the console
+
+
+if not ext.lower() in valid_extensions::
+
+This line checks if the extracted file extension (ext) is not in the 
+valid_extensions list. The ext.lower() method is used to convert the extension to 
+lowercase to ensure the comparison is case-insensitive (e.g., ".PNG" and ".png" are treated the same).
+
+
+aise ValidationError('unsupported file extension. Allowed extensions:' + str(valid_extensions)):
+
+If the file extension is not in the list of valid extensions, this line raises a ValidationError. 
+The error message includes a string indicating that the file extension is unsupported and lists the allowed extensions.
+
+
+
+
+Create your url
+from django.urls import path
+from .import views
+
+
+urlpatterns = [
+     
+    path('RegisterVendor/', views.RegisterVendor, name='RegisterVendor'),
+    
+        
+] 
+
+add vendor url to the main project url
+
+ #path('regvendor/', include('Vendor.urls'))
+
+ 
+
+in future lectures add more fields to the vendor model and also used
+signals to create their wallet for both users and vendors
+
+
+
+Create your views
+from django.shortcuts import render, redirect
+
+from django.template.defaultfilters import slugify
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from authentication.forms import UserRegisterForm, profileForm
+from Vendor.forms import vendorform
+from authentication.models import User, UserProfile
+
+
+
+
+
+# Create your views here.
+
+#return HttpResponse("This is the user registration page")
+# from django.shortcuts import render, redirect, HttpResponse
+def RegisterVendor(request):
+    if request.user.is_authenticated: 
+         messages.warning(request, "you are already logged in")
+         return redirect('home')
+    
+    elif request.method =='POST':
+        form = UserRegisterForm(request.POST)
+        v_form = vendorform(request.POST, request.FILES)
+        userprofileform = profileForm(request.POST, request.FILES)
+        
+        if form.is_valid() and v_form.is_valid() and userprofileform.is_valid():
+            password = form.cleaned_data['password1'] # i used this method so when you see the code elsewhere you wont be confused otherwise what we did on the customer registration would work
+            user = form.save(commit=False)
+            user.set_password(password) 
+            user.role = User.VENDOR
+            user.save()
+           
+           #I need to create django signal to create the user profile for the vendor
+            
+            
+            profile = userprofileform.save(commit=False)
+            profile.user = user #Assigning the profile form to the newly created user
+            profile.save()
+            
+            
+            vendor = v_form.save(commit=False)
+            vendor.user = user
+            vendor.user_profile = profile
+            theVendorName = v_form.cleaned_data['vendorname']
+            vendor.vendorslug = slugify(theVendorName) + '-'+str(user.id) 
+            vendor.save()
+            
+                       
+          
+            
+            messages.success(request, "Your account has been registered succesfully, please wait for approval")
+            return redirect('home')
+
+
+        else:
+            print('Invalid form')
+            print(form.errors)
+            print(v_form.errors)
+            print(userprofileform.errors)
+     
+    else:
+        form = UserRegisterForm()
+        v_form = vendorform()
+        
+        form = UserRegisterForm()
+     
+        userprofileform = profileForm()
+    
+
+    context = {
+
+        'form': UserRegisterForm,
+        'v_form': vendorform,
+        'userprofileform': userprofileform
+        
+       
+        
+    }
+       
+    return render(request, 'Vendor/vendorReg.html', context)
+
+
+Explain field and non field errors
+make mistakes in the form and show to them on the console
+
+
+vendor = v_form.save(commit=False) in your Django view does the following:
+
+Form Validation: The save(commit=False) method is called on v_form, which is an instance of 
+vendorform. This method will first validate the form. If the form data is not valid, it will 
+raise an error.
+
+Creating an Instance Without Saving: If the form data is valid, v_form.save(commit=False) c
+reates an instance of the vendorform's associated model but does not save it to the database 
+immediately. Thi
+
+
+    create the Vendor folder with the vendorregistration.html 
+
+    <!DOCTYPE html>
+<html>
+
+<head>
+    <title>Register</title>
+</head>
+
+<body>
+    <h2>Register</h2>
+
+
+    <form method="post" action="{% url 'RegisterVendor' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {{ userprofileform.as_p }}
+        <!-- {{ userform | crispy }}
+
+        {{ userprofileform | crispy }} -->
+        {{ v_form.as_p }}
+
+
+        <button type="submit">Register</button>
+    </form>
+</body>
+
+</html>
+
+
+go to the home page and create a link to the vendor registration page
+
+
+Register your vendor account here <a href="{% url 'RegisterVendor' %}" class="dropdown-item">here</a>
+
+

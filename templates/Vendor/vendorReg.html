@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor registration Form</title>
+</head>
+
+<body>
+    <form method="post" action="{% url 'VendorReg' %}" enctype="multipart/form-data">
+
+        {% csrf_token %}
+
+        {{userregform.as_p}}
+
+        {{profileform.as_p}}
+
+        {{vendorform.as_p}}
+
+        <button type="submit">Register</button>
+
+    </form>
+
+
+</body>
+
+</html>
