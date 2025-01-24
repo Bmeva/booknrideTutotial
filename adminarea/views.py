@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from Vendor.models import VendorRegistration
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.contrib import messages
 # Create your views here.
 
 def view_all_vendors(req):
@@ -31,3 +33,13 @@ def view_single_record(request, pk):
     }
     
     return render(request, 'adminarea/view_single_record.html', context)
+
+def delete_single_vendor(request, pk):
+    theven = get_object_or_404(VendorRegistration, pk=pk)
+    theven.delete()
+    themessage = 'vendor account deleted succesfully'
+    messages.info(request, 'account deleted succesfully')
+    return redirect('view_all_vendors')
+
+
+
