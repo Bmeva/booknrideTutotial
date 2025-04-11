@@ -14,20 +14,3 @@ def view_all_vendors(req):
     
     return render(req, 'adminarea/viewallrec.html', context)
 
-
-def view_single_record(request, pk):
-    
-    try:
-        
-        thesinglevendor = VendorRegistration.objects.get(pk = pk)
-        
-    except VendorRegistration.DoesNotExist:
-        return HttpResponse('the record you are trying to view does not exist')
-        
-    
-    context = {
-        
-        'thesinglevendor': thesinglevendor,
-    }
-    
-    return render(request, 'adminarea/view_single_record.html', context)
